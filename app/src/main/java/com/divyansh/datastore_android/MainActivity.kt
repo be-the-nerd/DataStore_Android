@@ -1,11 +1,13 @@
 package com.divyansh.datastore_android
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -40,10 +42,30 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnRead.setOnClickListener {
             it.hideKeyboard()
+            binding.etSaveKey.setText("")
+            binding.etSaveValue.setText("")
             lifecycleScope.launch {
                 val value = read(binding.etReadkey.text.toString())
                 binding.tvReadValue.text = value ?: "No value found"
             }
+        }
+
+        binding.floatingActionButton.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("Are you sure you want to delete?")
+                .setCancelable(true)
+                .setPositiveButton("Yes"){ dialog, id->
+                    lifecycleScope.launch{
+                        dataStore.edit {
+                            it.clear()
+                        }
+                    }
+                }
+                .setNegativeButton("Later"){dialog, id ->
+                    dialog.dismiss()
+                }
+            val alert = builder.create()
+            alert.show()
         }
     }
 
